@@ -19,6 +19,11 @@ public class UserController {
         return userService.registerUser(user);
     }
 
+    @GetMapping(value = "login")
+    public String login(@RequestBody UserDto user) {
+        return userService.loginUser(user);
+    }
+
     @GetMapping(value = "something")
     public String something() {
         return "hello";

@@ -7,6 +7,7 @@ import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -60,5 +61,18 @@ public class UserService {
 
         //Builds the JWT and serializes it to a compact, URL-safe string
         return builder.compact();
+    }
+
+    public String loginUser(UserDto user) {
+        var savedUser = userRepository.findByUsername(user.getUsername())
+                .orElseThrow(IllegalArgumentException::new);
+        if (!BCrypt.checkpw(user.getPassword(), savedUser.getPassword())) {
+            throw new IllegalArgumentException();
+        }
+        String token = createJwt(savedUser.getId());
+        savedUser.setJwt(token);
+        userRepository.save(savedUser);
+        return token;
+
     }
 }
