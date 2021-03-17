@@ -15,7 +15,12 @@ public class UserController {
 
     @PostMapping(value = "register")
     @ResponseStatus(HttpStatus.CREATED)
-    public void registerUser(@RequestBody UserDto user){
-        userService.registerUser(user);
+    public String registerUser(@RequestBody UserDto user) {
+        return userService.registerUser(user);
+    }
+
+    @GetMapping(value = "something")
+    public String something() {
+        return "hello";
     }
 }

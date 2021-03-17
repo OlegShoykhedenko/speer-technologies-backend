@@ -39,7 +39,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .addFilterAfter(jwtSecurityFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeRequests()
-                .antMatchers("/healthcheck", "/h2-console/**", "/actuator/**", "/favicon**", "/user/register")
+                .antMatchers("/user/register")
                 .permitAll()
                 .anyRequest()
                 .authenticated();

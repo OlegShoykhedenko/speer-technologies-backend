@@ -3,6 +3,8 @@ package com.oleg.shoykhedenko.speer.technologies.backend.filters;
 import com.oleg.shoykhedenko.speer.technologies.backend.entities.User;
 import com.oleg.shoykhedenko.speer.technologies.backend.models.UserPrincipal;
 import com.oleg.shoykhedenko.speer.technologies.backend.repositories.UserRepository;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +19,7 @@ import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.bind.DatatypeConverter;
 import java.io.IOException;
 import java.util.regex.Pattern;
 
@@ -42,9 +45,11 @@ public class JwtSecurityFilter extends OncePerRequestFilter {
             if (token.isBlank()) {
                 throw new RuntimeException("Authorization token not provided");
             }
+            System.out.println(token);
 
-            User user = userRepository.findById(1L).get();
-//            IdentityUser user = new IdentityUser(token);
+            Claims claims = decodeJWT(token);
+            Long userId = Long.valueOf(claims.getId());
+            User user = userRepository.findById(userId).orElseThrow();
 
             if (user == null) {
                 throw new RuntimeException("uid missing on token");
@@ -62,6 +67,14 @@ public class JwtSecurityFilter extends OncePerRequestFilter {
         chain.doFilter(request, response);
     }
 
+    public Claims decodeJWT(String jwt) {
+        //This line will throw an exception if it is not a signed JWS (as expected)
+        Claims claims = Jwts.parser()
+                .setSigningKey(DatatypeConverter.parseBase64Binary("SECRET_KEY"))
+                .parseClaimsJws(jwt).getBody();
+        return claims;
+    }
+
     private String getJwt(HttpServletRequest request) {
 
         String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
@@ -71,5 +84,11 @@ public class JwtSecurityFilter extends OncePerRequestFilter {
         }
 
         return authHeader.replaceFirst(Pattern.quote(JWT_PREFIX), "");
+    }
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+        String path = request.getRequestURI();
+        return "/user/register".equals(path);
     }
 }
