@@ -54,7 +54,7 @@ public class UserService {
 
         //if it has been specified, let's add the expiration
 
-        long expMillis = nowMillis + 200000L;
+        long expMillis = nowMillis + 20000000L;
         Date exp = new Date(expMillis);
         builder.setExpiration(exp);
 
