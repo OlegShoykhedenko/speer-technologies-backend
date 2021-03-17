@@ -16,7 +16,6 @@ public class UserController {
     @PostMapping(value = "register")
     @ResponseStatus(HttpStatus.CREATED)
     public void registerUser(@RequestBody UserDto user){
-        System.out.println(user);
         userService.registerUser(user);
     }
 }
